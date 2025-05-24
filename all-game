@@ -36,20 +36,58 @@ mainFrame.Draggable = true
 mainFrame.Parent = gui
 addUICorner(mainFrame)
 
-local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, 0, 0, 30)
+-- Title bar frame (để chứa title + nút)
+local titleBar = Instance.new("Frame", mainFrame)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+addUICorner(titleBar, UDim.new(0, 8))
+
+local title = Instance.new("TextLabel", titleBar)
+title.Size = UDim2.new(1, -70, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
 title.Text = "Checkpoint Manager"
 title.TextColor3 = Color3.fromRGB(235, 235, 235)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 22
-title.TextXAlignment = Enum.TextXAlignment.Center
-title.Position = UDim2.new(0, 0, 0, 8)
+title.TextXAlignment = Enum.TextXAlignment.Left
 
-local nameBox = Instance.new("TextBox", mainFrame)
+-- Nút thu nhỏ (minimize)
+local btnMinimize = Instance.new("TextButton", titleBar)
+btnMinimize.Size = UDim2.new(0, 30, 0, 30)
+btnMinimize.Position = UDim2.new(1, -70, 0, 0)
+btnMinimize.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+btnMinimize.TextColor3 = Color3.fromRGB(230, 230, 230)
+btnMinimize.Text = "—"
+btnMinimize.Font = Enum.Font.SourceSansBold
+btnMinimize.TextSize = 24
+btnMinimize.BorderSizePixel = 0
+addUICorner(btnMinimize, UDim.new(0, 6))
+addHoverEffect(btnMinimize)
+
+-- Nút đóng (close)
+local btnClose = Instance.new("TextButton", titleBar)
+btnClose.Size = UDim2.new(0, 30, 0, 30)
+btnClose.Position = UDim2.new(1, -35, 0, 0)
+btnClose.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+btnClose.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnClose.Text = "×"
+btnClose.Font = Enum.Font.SourceSansBold
+btnClose.TextSize = 24
+btnClose.BorderSizePixel = 0
+addUICorner(btnClose, UDim.new(0, 6))
+addHoverEffect(btnClose)
+
+-- Các phần còn lại để không bị che khuất khi minimize, tạo container cho nội dung chính
+local contentFrame = Instance.new("Frame", mainFrame)
+contentFrame.Size = UDim2.new(1, 0, 1, -30)
+contentFrame.Position = UDim2.new(0, 0, 0, 30)
+contentFrame.BackgroundTransparency = 1
+
+local nameBox = Instance.new("TextBox", contentFrame)
 nameBox.PlaceholderText = "Tên checkpoint"
 nameBox.Size = UDim2.new(1, -20, 0, 35)
-nameBox.Position = UDim2.new(0, 10, 0, 45)
+nameBox.Position = UDim2.new(0, 10, 0, 15)
 nameBox.Text = ""
 nameBox.TextSize = 18
 nameBox.Font = Enum.Font.SourceSans
@@ -58,10 +96,10 @@ nameBox.TextColor3 = Color3.fromRGB(230, 230, 230)
 nameBox.BorderSizePixel = 0
 addUICorner(nameBox, UDim.new(0, 8))
 
-local saveBtn = Instance.new("TextButton", mainFrame)
+local saveBtn = Instance.new("TextButton", contentFrame)
 saveBtn.Text = "Lưu checkpoint"
 saveBtn.Size = UDim2.new(1, -20, 0, 35)
-saveBtn.Position = UDim2.new(0, 10, 0, 85)
+saveBtn.Position = UDim2.new(0, 10, 0, 60)
 saveBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 75)
 saveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 saveBtn.Font = Enum.Font.SourceSansBold
@@ -70,9 +108,9 @@ saveBtn.BorderSizePixel = 0
 addUICorner(saveBtn, UDim.new(0, 8))
 addHoverEffect(saveBtn)
 
-local listFrame = Instance.new("ScrollingFrame", mainFrame)
+local listFrame = Instance.new("ScrollingFrame", contentFrame)
 listFrame.Size = UDim2.new(1, -20, 0, 160)
-listFrame.Position = UDim2.new(0, 10, 0, 130)
+listFrame.Position = UDim2.new(0, 10, 0, 105)
 listFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 listFrame.ScrollBarThickness = 6
 listFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -83,7 +121,7 @@ local uiList = Instance.new("UIListLayout", listFrame)
 uiList.Padding = UDim.new(0, 6)
 uiList.SortOrder = Enum.SortOrder.LayoutOrder
 
-local toggleLoop = Instance.new("TextButton", mainFrame)
+local toggleLoop = Instance.new("TextButton", contentFrame)
 toggleLoop.Text = "Bật lặp lại"
 toggleLoop.Size = UDim2.new(0.48, -5, 0, 35)
 toggleLoop.Position = UDim2.new(0, 10, 1, -75)
@@ -95,7 +133,7 @@ toggleLoop.BorderSizePixel = 0
 addUICorner(toggleLoop, UDim.new(0, 8))
 addHoverEffect(toggleLoop)
 
-local timeBox = Instance.new("TextBox", mainFrame)
+local timeBox = Instance.new("TextBox", contentFrame)
 timeBox.Size = UDim2.new(0.48, -5, 0, 35)
 timeBox.Position = UDim2.new(0.52, 5, 1, -75)
 timeBox.PlaceholderText = "Giây giữa mỗi lần"
@@ -107,56 +145,18 @@ timeBox.TextColor3 = Color3.fromRGB(230, 230, 230)
 timeBox.BorderSizePixel = 0
 addUICorner(timeBox, UDim.new(0, 8))
 
-local hideBtn = Instance.new("TextButton", mainFrame)
-hideBtn.Size = UDim2.new(0, 120, 0, 35)
-hideBtn.Position = UDim2.new(0, 10, 0.9, 0)
-hideBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-hideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-hideBtn.Text = "Ẩn GUI"
-hideBtn.Font = Enum.Font.SourceSansBold
-hideBtn.TextSize = 16
-hideBtn.BorderSizePixel = 0
-addUICorner(hideBtn, UDim.new(0, 8))
-addHoverEffect(hideBtn)
-
-local toggleButton = Instance.new("TextButton", gui)
-toggleButton.Size = UDim2.new(0, 120, 0, 35)
-toggleButton.Position = UDim2.new(0, 50, 0, 50)
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.fromRGB(230, 230, 230)
-toggleButton.Text = "Hiện GUI"
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 16
-toggleButton.BorderSizePixel = 0
-toggleButton.Visible = false
-toggleButton.Active = true
-toggleButton.Draggable = true
-addUICorner(toggleButton, UDim.new(0, 8))
-addHoverEffect(toggleButton)
-
-hideBtn.MouseButton1Click:Connect(function()
-	mainFrame.Visible = false
-	toggleButton.Visible = true
+btnMinimize.MouseButton1Click:Connect(function()
+	contentFrame.Visible = not contentFrame.Visible
+	if contentFrame.Visible then
+		btnMinimize.Text = "—"
+		mainFrame.Size = UDim2.new(0, 300, 0, 350)
+	else
+		btnMinimize.Text = "+"
+		mainFrame.Size = UDim2.new(0, 300, 0, 30)
+	end
 end)
 
-toggleButton.MouseButton1Click:Connect(function()
-	mainFrame.Visible = true
-	toggleButton.Visible = false
-end)
-
-local exitBtn = Instance.new("TextButton", mainFrame)
-exitBtn.Size = UDim2.new(0, 120, 0, 35)
-exitBtn.Position = UDim2.new(1, -130, 0.9, 0)
-exitBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-exitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-exitBtn.Text = "Thoát GUI"
-exitBtn.Font = Enum.Font.SourceSansBold
-exitBtn.TextSize = 16
-exitBtn.BorderSizePixel = 0
-addUICorner(exitBtn, UDim.new(0, 8))
-addHoverEffect(exitBtn)
-
-exitBtn.MouseButton1Click:Connect(function()
+btnClose.MouseButton1Click:Connect(function()
 	gui:Destroy()
 end)
 
