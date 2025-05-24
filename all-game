@@ -8,93 +8,131 @@ local autoTeleport = false
 local teleportInterval = 5
 local lastTeleportTime = 0
 
--- GUI setup
 local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 gui.Name = "CheckpointGui"
 gui.ResetOnSpawn = false
 
+local function addUICorner(parent, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UDim.new(0, 6)
+	corner.Parent = parent
+end
+
+local function addHoverEffect(button)
+	button.MouseEnter:Connect(function()
+		button.BackgroundTransparency = 0.7
+	end)
+	button.MouseLeave:Connect(function()
+		button.BackgroundTransparency = 0
+	end)
+end
+
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 300, 0, 350)
 mainFrame.Position = UDim2.new(0, 50, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Parent = gui
+addUICorner(mainFrame)
 
 local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.Text = "Checkpoint Manager"
-title.TextColor3 = Color3.new(1, 1, 1)
+title.TextColor3 = Color3.fromRGB(235, 235, 235)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.SourceSansBold
-title.TextSize = 20
+title.TextSize = 22
+title.TextXAlignment = Enum.TextXAlignment.Center
+title.Position = UDim2.new(0, 0, 0, 8)
 
 local nameBox = Instance.new("TextBox", mainFrame)
 nameBox.PlaceholderText = "Tên checkpoint"
-nameBox.Size = UDim2.new(1, -20, 0, 30)
-nameBox.Position = UDim2.new(0, 10, 0, 40)
+nameBox.Size = UDim2.new(1, -20, 0, 35)
+nameBox.Position = UDim2.new(0, 10, 0, 45)
 nameBox.Text = ""
 nameBox.TextSize = 18
 nameBox.Font = Enum.Font.SourceSans
+nameBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+nameBox.TextColor3 = Color3.fromRGB(230, 230, 230)
+nameBox.BorderSizePixel = 0
+addUICorner(nameBox, UDim.new(0, 8))
 
 local saveBtn = Instance.new("TextButton", mainFrame)
 saveBtn.Text = "Lưu checkpoint"
-saveBtn.Size = UDim2.new(1, -20, 0, 30)
-saveBtn.Position = UDim2.new(0, 10, 0, 80)
-saveBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 60)
-saveBtn.TextColor3 = Color3.new(1,1,1)
+saveBtn.Size = UDim2.new(1, -20, 0, 35)
+saveBtn.Position = UDim2.new(0, 10, 0, 85)
+saveBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 75)
+saveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 saveBtn.Font = Enum.Font.SourceSansBold
-saveBtn.TextSize = 16
+saveBtn.TextSize = 18
+saveBtn.BorderSizePixel = 0
+addUICorner(saveBtn, UDim.new(0, 8))
+addHoverEffect(saveBtn)
 
 local listFrame = Instance.new("ScrollingFrame", mainFrame)
 listFrame.Size = UDim2.new(1, -20, 0, 160)
-listFrame.Position = UDim2.new(0, 10, 0, 120)
+listFrame.Position = UDim2.new(0, 10, 0, 130)
 listFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 listFrame.ScrollBarThickness = 6
-listFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+listFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+listFrame.BorderSizePixel = 0
+addUICorner(listFrame, UDim.new(0, 8))
+
 local uiList = Instance.new("UIListLayout", listFrame)
-uiList.Padding = UDim.new(0, 4)
+uiList.Padding = UDim.new(0, 6)
 uiList.SortOrder = Enum.SortOrder.LayoutOrder
 
 local toggleLoop = Instance.new("TextButton", mainFrame)
 toggleLoop.Text = "Bật lặp lại"
-toggleLoop.Size = UDim2.new(0.48, -5, 0, 30)
-toggleLoop.Position = UDim2.new(0, 10, 1, -70)
-toggleLoop.BackgroundColor3 = Color3.fromRGB(60, 130, 180)
-toggleLoop.TextColor3 = Color3.new(1,1,1)
+toggleLoop.Size = UDim2.new(0.48, -5, 0, 35)
+toggleLoop.Position = UDim2.new(0, 10, 1, -75)
+toggleLoop.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+toggleLoop.TextColor3 = Color3.fromRGB(230, 230, 230)
 toggleLoop.Font = Enum.Font.SourceSansBold
 toggleLoop.TextSize = 16
+toggleLoop.BorderSizePixel = 0
+addUICorner(toggleLoop, UDim.new(0, 8))
+addHoverEffect(toggleLoop)
 
 local timeBox = Instance.new("TextBox", mainFrame)
-timeBox.Size = UDim2.new(0.48, -5, 0, 30)
-timeBox.Position = UDim2.new(0.52, 5, 1, -70)
+timeBox.Size = UDim2.new(0.48, -5, 0, 35)
+timeBox.Position = UDim2.new(0.52, 5, 1, -75)
 timeBox.PlaceholderText = "Giây giữa mỗi lần"
 timeBox.Text = ""
 timeBox.TextSize = 16
 timeBox.Font = Enum.Font.SourceSans
+timeBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+timeBox.TextColor3 = Color3.fromRGB(230, 230, 230)
+timeBox.BorderSizePixel = 0
+addUICorner(timeBox, UDim.new(0, 8))
 
-local hideBtn = Instance.new("TextButton")
-hideBtn.Size = UDim2.new(0, 100, 0, 30)
+local hideBtn = Instance.new("TextButton", mainFrame)
+hideBtn.Size = UDim2.new(0, 120, 0, 35)
 hideBtn.Position = UDim2.new(0, 10, 0.9, 0)
 hideBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-hideBtn.TextColor3 = Color3.new(1, 1, 1)
+hideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 hideBtn.Text = "Ẩn GUI"
 hideBtn.Font = Enum.Font.SourceSansBold
 hideBtn.TextSize = 16
-hideBtn.Parent = mainFrame
+hideBtn.BorderSizePixel = 0
+addUICorner(hideBtn, UDim.new(0, 8))
+addHoverEffect(hideBtn)
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 100, 0, 30)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 200)
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
+local toggleButton = Instance.new("TextButton", gui)
+toggleButton.Size = UDim2.new(0, 120, 0, 35)
+toggleButton.Position = UDim2.new(0, 50, 0, 50)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.TextColor3 = Color3.fromRGB(230, 230, 230)
 toggleButton.Text = "Hiện GUI"
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 16
-toggleButton.Parent = gui
+toggleButton.BorderSizePixel = 0
 toggleButton.Visible = false
 toggleButton.Active = true
 toggleButton.Draggable = true
+addUICorner(toggleButton, UDim.new(0, 8))
+addHoverEffect(toggleButton)
 
 hideBtn.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
@@ -106,7 +144,22 @@ toggleButton.MouseButton1Click:Connect(function()
 	toggleButton.Visible = false
 end)
 
--- Functions
+local exitBtn = Instance.new("TextButton", mainFrame)
+exitBtn.Size = UDim2.new(0, 120, 0, 35)
+exitBtn.Position = UDim2.new(1, -130, 0.9, 0)
+exitBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+exitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+exitBtn.Text = "Thoát GUI"
+exitBtn.Font = Enum.Font.SourceSansBold
+exitBtn.TextSize = 16
+exitBtn.BorderSizePixel = 0
+addUICorner(exitBtn, UDim.new(0, 8))
+addHoverEffect(exitBtn)
+
+exitBtn.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
 local function refreshList()
 	for _, c in pairs(listFrame:GetChildren()) do
 		if c:IsA("Frame") then c:Destroy() end
@@ -115,40 +168,55 @@ local function refreshList()
 	for i, checkpoint in ipairs(checkpoints) do
 		local row = Instance.new("Frame")
 		row.Size = UDim2.new(1, 0, 0, 30)
-		row.BackgroundColor3 = checkpoint.locked and Color3.fromRGB(70, 30, 30) or Color3.fromRGB(50, 50, 50)
+		row.BackgroundColor3 = checkpoint.locked and Color3.fromRGB(55, 55, 55) or Color3.fromRGB(75, 75, 75)
+		row.BorderSizePixel = 0
 		row.Parent = listFrame
+		addUICorner(row, UDim.new(0, 6))
 
 		local label = Instance.new("TextLabel", row)
 		label.Size = UDim2.new(0.4, 0, 1, 0)
 		label.Text = checkpoint.name
 		label.BackgroundTransparency = 1
-		label.TextColor3 = Color3.new(1,1,1)
+		label.TextColor3 = Color3.fromRGB(230, 230, 230)
 		label.Font = Enum.Font.SourceSans
 		label.TextSize = 16
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.Position = UDim2.new(0, 8, 0, 0)
 
 		local tp = Instance.new("TextButton", row)
 		tp.Text = "TP"
-		tp.Size = UDim2.new(0.2, -5, 1, 0)
+		tp.Size = UDim2.new(0.15, -5, 1, 0)
 		tp.Position = UDim2.new(0.4, 5, 0, 0)
 		tp.Font = Enum.Font.SourceSansBold
 		tp.TextSize = 16
-		tp.BackgroundColor3 = Color3.fromRGB(80, 150, 80)
-		tp.TextColor3 = Color3.new(1,1,1)
+		tp.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		tp.TextColor3 = Color3.fromRGB(230, 230, 230)
+		tp.BorderSizePixel = 0
+		addUICorner(tp, UDim.new(0, 6))
+		addHoverEffect(tp)
+
 		tp.MouseButton1Click:Connect(function()
 			if not checkpoint.locked then
-				LocalPlayer.Character:MoveTo(checkpoint.pos.Position)
-				selectedCheckpoint = checkpoint
+				local char = LocalPlayer.Character
+				if char and char:FindFirstChild("HumanoidRootPart") then
+					char.HumanoidRootPart.CFrame = checkpoint.pos
+					selectedCheckpoint = checkpoint
+				end
 			end
 		end)
 
 		local lock = Instance.new("TextButton", row)
 		lock.Text = checkpoint.locked and "🔒" or "🔓"
-		lock.Size = UDim2.new(0.2, -5, 1, 0)
-		lock.Position = UDim2.new(0.6, 5, 0, 0)
+		lock.Size = UDim2.new(0.15, -5, 1, 0)
+		lock.Position = UDim2.new(0.56, 5, 0, 0)
 		lock.Font = Enum.Font.SourceSansBold
 		lock.TextSize = 16
-		lock.BackgroundColor3 = Color3.fromRGB(180, 130, 30)
-		lock.TextColor3 = Color3.new(1,1,1)
+		lock.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+		lock.TextColor3 = Color3.fromRGB(230, 230, 230)
+		lock.BorderSizePixel = 0
+		addUICorner(lock, UDim.new(0, 6))
+		addHoverEffect(lock)
+
 		lock.MouseButton1Click:Connect(function()
 			checkpoint.locked = not checkpoint.locked
 			refreshList()
@@ -156,14 +224,21 @@ local function refreshList()
 
 		local del = Instance.new("TextButton", row)
 		del.Text = "🗑"
-		del.Size = UDim2.new(0.2, -5, 1, 0)
-		del.Position = UDim2.new(0.8, 5, 0, 0)
+		del.Size = UDim2.new(0.15, -5, 1, 0)
+		del.Position = UDim2.new(0.72, 5, 0, 0)
 		del.Font = Enum.Font.SourceSansBold
 		del.TextSize = 16
-		del.BackgroundColor3 = Color3.fromRGB(180, 60, 60)
-		del.TextColor3 = Color3.new(1,1,1)
+		del.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+		del.TextColor3 = Color3.fromRGB(255, 255, 255)
+		del.BorderSizePixel = 0
+		addUICorner(del, UDim.new(0, 6))
+		addHoverEffect(del)
+
 		del.MouseButton1Click:Connect(function()
 			table.remove(checkpoints, i)
+			if selectedCheckpoint == checkpoint then
+				selectedCheckpoint = nil
+			end
 			refreshList()
 		end)
 	end
@@ -172,44 +247,48 @@ local function refreshList()
 end
 
 saveBtn.MouseButton1Click:Connect(function()
+	local name = nameBox.Text:match("%S+")
+	if not name then return end
+
 	local char = LocalPlayer.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
-		local name = nameBox.Text ~= "" and nameBox.Text or "Checkpoint " .. tostring(#checkpoints + 1)
-		table.insert(checkpoints, { name = name, pos = char.HumanoidRootPart.CFrame, locked = false })
+		table.insert(checkpoints, {
+			name = name,
+			pos = char.HumanoidRootPart.CFrame,
+			locked = false
+		})
+		nameBox.Text = ""
 		refreshList()
 	end
 end)
 
 toggleLoop.MouseButton1Click:Connect(function()
-	autoTeleport = not autoTeleport
-	toggleLoop.Text = autoTeleport and "Tắt lặp lại" or "Bật lặp lại"
+	if autoTeleport then
+		autoTeleport = false
+		toggleLoop.Text = "Bật lặp lại"
+	else
+		if selectedCheckpoint then
+			local t = tonumber(timeBox.Text)
+			if t and t > 0 then
+				teleportInterval = t
+				autoTeleport = true
+				toggleLoop.Text = "Tắt lặp lại"
+			end
+		end
+	end
 end)
 
-RunService.RenderStepped:Connect(function()
-	if autoTeleport and selectedCheckpoint and tick() - lastTeleportTime >= teleportInterval then
-		if not selectedCheckpoint.locked then
+RunService.Heartbeat:Connect(function(dt)
+	if autoTeleport and selectedCheckpoint then
+		lastTeleportTime = lastTeleportTime + dt
+		if lastTeleportTime >= teleportInterval then
+			lastTeleportTime = 0
 			local char = LocalPlayer.Character
 			if char and char:FindFirstChild("HumanoidRootPart") then
 				char.HumanoidRootPart.CFrame = selectedCheckpoint.pos
 			end
-			lastTeleportTime = tick()
 		end
 	end
-
-	if tonumber(timeBox.Text) then
-		teleportInterval = tonumber(timeBox.Text)
-	end
 end)
-local exitBtn = Instance.new("TextButton")
-exitBtn.Size = UDim2.new(0, 100, 0, 30)
-exitBtn.Position = UDim2.new(1, -110, 0.9, 0)
-exitBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-exitBtn.TextColor3 = Color3.new(1, 1, 1)
-exitBtn.Text = "Thoát GUI"
-exitBtn.Font = Enum.Font.SourceSansBold
-exitBtn.TextSize = 16
-exitBtn.Parent = mainFrame
 
-exitBtn.MouseButton1Click:Connect(function()
-	gui:Destroy()
-end)
+refreshList()
